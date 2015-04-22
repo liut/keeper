@@ -1,11 +1,11 @@
 package keeper
 
 import (
-	"bytehub.org/glog"
 	"bytehub.org/util"
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"runtime"
 	"strings"
@@ -16,46 +16,6 @@ var (
 	startTime = time.Now()
 )
 
-/*
-<dl class="dl-horizontal admin-dl-horizontal">
-   <dt>{{.i18n.Tr "admin.dashboard.server_uptime"}}</dt> <dd>{{.SysStatus.Uptime}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.current_goroutine"}}</dt> <dd>{{.SysStatus.NumGoroutine}}</dd>
-
-   <hr/>
-   <dt>{{.i18n.Tr "admin.dashboard.current_memory_usage"}}</dt> <dd>{{.SysStatus.MemAllocated}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.total_memory_allocated"}}</dt> <dd>{{.SysStatus.MemTotal}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.memory_obtained"}}</dt> <dd>{{.SysStatus.MemSys}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.pointer_lookup_times"}}</dt> <dd>{{.SysStatus.Lookups}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.memory_allocate_times"}}</dt> <dd>{{.SysStatus.MemMallocs}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.memory_free_times"}}</dt> <dd>{{.SysStatus.MemFrees}}</dd>
-
-   <hr/>
-   <dt>{{.i18n.Tr "admin.dashboard.current_heap_usage"}}</dt> <dd>{{.SysStatus.HeapAlloc}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.heap_memory_obtained"}}</dt> <dd>{{.SysStatus.HeapSys}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.heap_memory_idle"}}</dt> <dd>{{.SysStatus.HeapIdle}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.heap_memory_in_use"}}</dt> <dd>{{.SysStatus.HeapInuse}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.heap_memory_released"}}</dt> <dd>{{.SysStatus.HeapReleased}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.heap_objects"}}</dt> <dd>{{.SysStatus.HeapObjects}}</dd>
-
-   <hr/>
-   <dt>{{.i18n.Tr "admin.dashboard.bootstrap_stack_usage"}}</dt> <dd>{{.SysStatus.StackInuse}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.stack_memory_obtained"}}</dt> <dd>{{.SysStatus.StackSys}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.mspan_structures_usage"}}</dt> <dd>{{.SysStatus.MSpanInuse}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.mspan_structures_obtained"}}</dt> <dd>{{.SysStatus.HeapSys}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.mcache_structures_usage"}}</dt> <dd>{{.SysStatus.MCacheInuse}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.mcache_structures_obtained"}}</dt> <dd>{{.SysStatus.MCacheSys}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.profiling_bucket_hash_table_obtained"}}</dt> <dd>{{.SysStatus.BuckHashSys}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.gc_metadata_obtained"}}</dt> <dd>{{.SysStatus.GCSys}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.other_system_allocation_obtained"}}</dt> <dd>{{.SysStatus.OtherSys}}</dd>
-
-   <hr>
-   <dt>{{.i18n.Tr "admin.dashboard.next_gc_recycle"}}</dt> <dd>{{.SysStatus.NextGC}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.last_gc_time"}}</dt> <dd>{{.SysStatus.LastGC}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.total_gc_pause"}}</dt> <dd>{{.SysStatus.PauseTotalNs}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.last_gc_pause"}}</dt> <dd>{{.SysStatus.PauseNs}}</dd>
-   <dt>{{.i18n.Tr "admin.dashboard.gc_times"}}</dt> <dd>{{.SysStatus.NumGC}}</dd>
-</dl>
-*/
 var sysStatus struct {
 	Uptime       string `json:"server_uptime"`
 	NumGoroutine int    `json:"current_goroutine"`
@@ -137,28 +97,31 @@ func updateSystemStatus() {
 
 func HandleMonitor(w http.ResponseWriter, r *http.Request) {
 	updateSystemStatus()
-	if strings.HasSuffix(r.URL.Path, ".html") {
+	if strings.HasSuffix(r.URL.Path, ".html") || r.FormValue("format") == "html" {
 		err := tmpl.Execute(w, map[string]interface{}{"SysStatus": sysStatus})
 		if err != nil {
-			glog.Warning(err)
+			log.Print(err)
 		}
 		return
 	}
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	b, err := json.Marshal(sysStatus)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		glog.Warning(err)
-		return
+	if strings.HasSuffix(r.URL.Path, ".json") || r.FormValue("format") == "json" {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		b, err := json.Marshal(sysStatus)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			log.Print(err)
+			return
+		}
+		var i int
+		i, err = w.Write(b)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			log.Print(err)
+			return
+		}
+		log.Printf("wrote %d bytes", i)
 	}
-	var i int
-	i, err = w.Write(b)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		glog.Warning(err)
-		return
-	}
-	glog.Infof("wrote %d bytes", i)
+
 }
 
 var tmpl = template.Must(template.New("index").Parse(`<html>
