@@ -5,8 +5,10 @@ import (
 	"bytehub.org/util"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 	"runtime"
+	"strings"
 	"time"
 )
 
@@ -15,7 +17,7 @@ var (
 )
 
 /*
-
+<dl class="dl-horizontal admin-dl-horizontal">
    <dt>{{.i18n.Tr "admin.dashboard.server_uptime"}}</dt> <dd>{{.SysStatus.Uptime}}</dd>
    <dt>{{.i18n.Tr "admin.dashboard.current_goroutine"}}</dt> <dd>{{.SysStatus.NumGoroutine}}</dd>
 
@@ -52,6 +54,7 @@ var (
    <dt>{{.i18n.Tr "admin.dashboard.total_gc_pause"}}</dt> <dd>{{.SysStatus.PauseTotalNs}}</dd>
    <dt>{{.i18n.Tr "admin.dashboard.last_gc_pause"}}</dt> <dd>{{.SysStatus.PauseNs}}</dd>
    <dt>{{.i18n.Tr "admin.dashboard.gc_times"}}</dt> <dd>{{.SysStatus.NumGC}}</dd>
+</dl>
 */
 var sysStatus struct {
 	Uptime       string `json:"server_uptime"`
@@ -134,6 +137,13 @@ func updateSystemStatus() {
 
 func HandleMonitor(w http.ResponseWriter, r *http.Request) {
 	updateSystemStatus()
+	if strings.HasSuffix(r.URL.Path, ".html") {
+		err := tmpl.Execute(w, map[string]interface{}{"SysStatus": sysStatus})
+		if err != nil {
+			glog.Warning(err)
+		}
+		return
+	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	b, err := json.Marshal(sysStatus)
 	if err != nil {
@@ -150,3 +160,62 @@ func HandleMonitor(w http.ResponseWriter, r *http.Request) {
 	}
 	glog.Infof("wrote %d bytes", i)
 }
+
+var tmpl = template.Must(template.New("index").Parse(`<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>monitor</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+<style>
+.dl-horizontal dt {width: 240px;}
+.dl-horizontal dd {margin-left: 260px;}
+</style>
+</head>
+<body>
+<div class="panel panel-radius">
+<div class="panel-header">monitor</div>
+<div class="panel-body">
+<dl class="dl-horizontal admin-dl-horizontal">
+   <dt>server_uptime</dt> <dd>{{.SysStatus.Uptime}}</dd>
+   <dt>current_goroutine</dt> <dd>{{.SysStatus.NumGoroutine}}</dd>
+
+   <hr/>
+   <dt>current_memory_usage</dt> <dd>{{.SysStatus.MemAllocated}}</dd>
+   <dt>total_memory_allocated</dt> <dd>{{.SysStatus.MemTotal}}</dd>
+   <dt>memory_obtained</dt> <dd>{{.SysStatus.MemSys}}</dd>
+   <dt>pointer_lookup_times</dt> <dd>{{.SysStatus.Lookups}}</dd>
+   <dt>memory_allocate_times</dt> <dd>{{.SysStatus.MemMallocs}}</dd>
+   <dt>memory_free_times</dt> <dd>{{.SysStatus.MemFrees}}</dd>
+
+   <hr/>
+   <dt>current_heap_usage</dt> <dd>{{.SysStatus.HeapAlloc}}</dd>
+   <dt>heap_memory_obtained</dt> <dd>{{.SysStatus.HeapSys}}</dd>
+   <dt>heap_memory_idle</dt> <dd>{{.SysStatus.HeapIdle}}</dd>
+   <dt>heap_memory_in_use</dt> <dd>{{.SysStatus.HeapInuse}}</dd>
+   <dt>heap_memory_released</dt> <dd>{{.SysStatus.HeapReleased}}</dd>
+   <dt>heap_objects</dt> <dd>{{.SysStatus.HeapObjects}}</dd>
+
+   <hr/>
+   <dt>bootstrap_stack_usage</dt> <dd>{{.SysStatus.StackInuse}}</dd>
+   <dt>stack_memory_obtained</dt> <dd>{{.SysStatus.StackSys}}</dd>
+   <dt>mspan_structures_usage</dt> <dd>{{.SysStatus.MSpanInuse}}</dd>
+   <dt>mspan_structures_obtained</dt> <dd>{{.SysStatus.HeapSys}}</dd>
+   <dt>mcache_structures_usage</dt> <dd>{{.SysStatus.MCacheInuse}}</dd>
+   <dt>mcache_structures_obtained</dt> <dd>{{.SysStatus.MCacheSys}}</dd>
+   <dt>profiling_bucket_hash_table_obtained</dt> <dd>{{.SysStatus.BuckHashSys}}</dd>
+   <dt>gc_metadata_obtained</dt> <dd>{{.SysStatus.GCSys}}</dd>
+   <dt>other_system_allocation_obtained</dt> <dd>{{.SysStatus.OtherSys}}</dd>
+
+   <hr>
+   <dt>next_gc_recycle</dt> <dd>{{.SysStatus.NextGC}}</dd>
+   <dt>last_gc_time</dt> <dd>{{.SysStatus.LastGC}}</dd>
+   <dt>total_gc_pause</dt> <dd>{{.SysStatus.PauseTotalNs}}</dd>
+   <dt>last_gc_pause</dt> <dd>{{.SysStatus.PauseNs}}</dd>
+   <dt>gc_times</dt> <dd>{{.SysStatus.NumGC}}</dd>
+</dl>
+</div>
+</div>
+</body>
+</html>
+`))
