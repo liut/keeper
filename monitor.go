@@ -107,12 +107,22 @@ func MonitorHtmlTo(w io.Writer) (err error) {
 }
 
 func ServeMonitor(address string) error {
-	http.HandleFunc("/monitor", HandleMonitor)
+	http.HandleFunc("/monitor/", HandleMonitor)
 	return http.ListenAndServe(address, nil)
 }
 
 func HandleMonitor(w http.ResponseWriter, r *http.Request) {
 	updateSystemStatus()
+	if strings.HasSuffix(r.URL.Path, ".json") || r.FormValue("format") == "json" {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		err := MonitorJsonTo(w)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			log.Print(err)
+		}
+		return
+	}
+
 	if strings.HasSuffix(r.URL.Path, ".html") || r.FormValue("format") == "html" {
 		err := MonitorHtmlTo(w)
 		if err != nil {
@@ -120,16 +130,8 @@ func HandleMonitor(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	if strings.HasSuffix(r.URL.Path, ".json") || r.FormValue("format") == "json" {
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		err := MonitorJsonTo(w)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			log.Print(err)
-			return
-		}
-	}
 
+	http.NotFound(w, r)
 }
 
 var tmpl = template.Must(template.New("index").Parse(`<html>
