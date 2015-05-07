@@ -96,19 +96,12 @@ func updateSystemStatus() {
 	sysStatus.NumGC = m.NumGC
 }
 
-func JsonTo(w io.Writer) (err error) {
+func MonitorJsonTo(w io.Writer) error {
 	updateSystemStatus()
-	var b []byte
-	b, err = json.Marshal(sysStatus)
-	if err != nil {
-		return
-	}
-
-	_, err = w.Write(b)
-	return nil
+	return json.NewEncoder(w).Encode(sysStatus)
 }
 
-func HtmlTo(w io.Writer) (err error) {
+func MonitorHtmlTo(w io.Writer) (err error) {
 	updateSystemStatus()
 	return tmpl.Execute(w, map[string]interface{}{"SysStatus": sysStatus})
 }
@@ -121,7 +114,7 @@ func ServeMonitor(address string) error {
 func HandleMonitor(w http.ResponseWriter, r *http.Request) {
 	updateSystemStatus()
 	if strings.HasSuffix(r.URL.Path, ".html") || r.FormValue("format") == "html" {
-		err := HtmlTo(w)
+		err := MonitorHtmlTo(w)
 		if err != nil {
 			log.Print(err)
 		}
@@ -129,7 +122,7 @@ func HandleMonitor(w http.ResponseWriter, r *http.Request) {
 	}
 	if strings.HasSuffix(r.URL.Path, ".json") || r.FormValue("format") == "json" {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		err := JsonTo(w)
+		err := MonitorJsonTo(w)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			log.Print(err)
