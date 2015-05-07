@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"runtime"
@@ -95,10 +96,32 @@ func updateSystemStatus() {
 	sysStatus.NumGC = m.NumGC
 }
 
+func JsonTo(w io.Writer) (err error) {
+	updateSystemStatus()
+	var b []byte
+	b, err = json.Marshal(sysStatus)
+	if err != nil {
+		return
+	}
+
+	_, err = w.Write(b)
+	return nil
+}
+
+func HtmlTo(w io.Writer) (err error) {
+	updateSystemStatus()
+	return tmpl.Execute(w, map[string]interface{}{"SysStatus": sysStatus})
+}
+
+func ServeMonitor(address string) error {
+	http.HandleFunc("/monitor", HandleMonitor)
+	return http.ListenAndServe(address, nil)
+}
+
 func HandleMonitor(w http.ResponseWriter, r *http.Request) {
 	updateSystemStatus()
 	if strings.HasSuffix(r.URL.Path, ".html") || r.FormValue("format") == "html" {
-		err := tmpl.Execute(w, map[string]interface{}{"SysStatus": sysStatus})
+		err := HtmlTo(w)
 		if err != nil {
 			log.Print(err)
 		}
@@ -106,20 +129,12 @@ func HandleMonitor(w http.ResponseWriter, r *http.Request) {
 	}
 	if strings.HasSuffix(r.URL.Path, ".json") || r.FormValue("format") == "json" {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		b, err := json.Marshal(sysStatus)
+		err := JsonTo(w)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			log.Print(err)
 			return
 		}
-		var i int
-		i, err = w.Write(b)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			log.Print(err)
-			return
-		}
-		log.Printf("wrote %d bytes", i)
 	}
 
 }
