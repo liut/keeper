@@ -136,19 +136,22 @@ func HandleMonitor(w http.ResponseWriter, r *http.Request) {
 }
 
 var tmpl = template.Must(template.New("index").Parse(`<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>monitor</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
 <style>
 .dl-horizontal dt {width: 240px;}
 .dl-horizontal dd {margin-left: 260px;}
 </style>
 </head>
-<body>
+<body><div class="container">
 <div class="panel panel-radius">
-<div class="panel-header">monitor</div>
+<div class="panel-header"><h3>system monitor</h3></div>
 <div class="panel-body">
 <dl class="dl-horizontal admin-dl-horizontal">
    <dt>server_uptime</dt> <dd>{{.SysStatus.Uptime}}</dd>
@@ -190,6 +193,6 @@ var tmpl = template.Must(template.New("index").Parse(`<html>
 </dl>
 </div>
 </div>
-</body>
+</div></body>
 </html>
 `))
