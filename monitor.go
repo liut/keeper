@@ -106,12 +106,6 @@ func MonitorHtmlTo(w io.Writer) (err error) {
 	return tmpl.Execute(w, map[string]interface{}{"SysStatus": sysStatus})
 }
 
-func ServeMonitor(address string) error {
-	http.HandleFunc("/_server/monitor/", HandleMonitor)
-	http.HandleFunc("/_server/stacks/", HandleStack)
-	return http.ListenAndServe(address, nil)
-}
-
 func HandleMonitor(w http.ResponseWriter, r *http.Request) {
 	updateSystemStatus()
 	if strings.HasSuffix(r.URL.Path, ".json") || r.FormValue("format") == "json" {
