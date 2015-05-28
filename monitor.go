@@ -107,8 +107,8 @@ func MonitorHtmlTo(w io.Writer) (err error) {
 }
 
 func ServeMonitor(address string) error {
-	http.HandleFunc("/monitor/", HandleMonitor)
-	http.HandleFunc("/monitor/stack", HandleStack)
+	http.HandleFunc("/_server/monitor/", HandleMonitor)
+	http.HandleFunc("/_server/stacks/", HandleStack)
 	return http.ListenAndServe(address, nil)
 }
 
