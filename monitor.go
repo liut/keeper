@@ -14,7 +14,8 @@ import (
 )
 
 var (
-	startTime = time.Now()
+	startTime       = time.Now()
+	BootstrapPrefix = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/"
 )
 
 var sysStatus struct {
@@ -103,7 +104,7 @@ func MonitorJsonTo(w io.Writer) error {
 
 func MonitorHtmlTo(w io.Writer) (err error) {
 	updateSystemStatus()
-	return tmpl.Execute(w, map[string]interface{}{"SysStatus": sysStatus})
+	return tmpl.Execute(w, map[string]interface{}{"SysStatus": sysStatus, "BootstrapPrefix": BootstrapPrefix})
 }
 
 func HandleMonitor(w http.ResponseWriter, r *http.Request) {
@@ -137,7 +138,7 @@ var tmpl = template.Must(template.New("index").Parse(`<html>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>monitor</title>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+<link rel="stylesheet" href="{{.BootstrapPrefix}}css/bootstrap.min.css">
 <style>
 .dl-horizontal dt {width: 240px;}
 .dl-horizontal dd {margin-left: 260px;}
