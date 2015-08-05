@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"bytehub.org/util"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -11,6 +10,7 @@ import (
 	"runtime"
 	"strings"
 	"time"
+	"tuluu.com/liut/keeper/utils/numbers"
 )
 
 var (
@@ -59,37 +59,37 @@ var sysStatus struct {
 }
 
 func updateSystemStatus() {
-	sysStatus.Uptime = util.TimeSincePro(startTime)
+	sysStatus.Uptime = numbers.TimeSincePro(startTime)
 
 	m := new(runtime.MemStats)
 	runtime.ReadMemStats(m)
 	sysStatus.NumGoroutine = runtime.NumGoroutine()
 
-	sysStatus.MemAllocated = util.PrettySize(int64(m.Alloc))
-	sysStatus.MemTotal = util.PrettySize(int64(m.TotalAlloc))
-	sysStatus.MemSys = util.PrettySize(int64(m.Sys))
+	sysStatus.MemAllocated = numbers.PrettySize(int64(m.Alloc))
+	sysStatus.MemTotal = numbers.PrettySize(int64(m.TotalAlloc))
+	sysStatus.MemSys = numbers.PrettySize(int64(m.Sys))
 	sysStatus.Lookups = m.Lookups
 	sysStatus.MemMallocs = m.Mallocs
 	sysStatus.MemFrees = m.Frees
 
-	sysStatus.HeapAlloc = util.PrettySize(int64(m.HeapAlloc))
-	sysStatus.HeapSys = util.PrettySize(int64(m.HeapSys))
-	sysStatus.HeapIdle = util.PrettySize(int64(m.HeapIdle))
-	sysStatus.HeapInuse = util.PrettySize(int64(m.HeapInuse))
-	sysStatus.HeapReleased = util.PrettySize(int64(m.HeapReleased))
+	sysStatus.HeapAlloc = numbers.PrettySize(int64(m.HeapAlloc))
+	sysStatus.HeapSys = numbers.PrettySize(int64(m.HeapSys))
+	sysStatus.HeapIdle = numbers.PrettySize(int64(m.HeapIdle))
+	sysStatus.HeapInuse = numbers.PrettySize(int64(m.HeapInuse))
+	sysStatus.HeapReleased = numbers.PrettySize(int64(m.HeapReleased))
 	sysStatus.HeapObjects = m.HeapObjects
 
-	sysStatus.StackInuse = util.PrettySize(int64(m.StackInuse))
-	sysStatus.StackSys = util.PrettySize(int64(m.StackSys))
-	sysStatus.MSpanInuse = util.PrettySize(int64(m.MSpanInuse))
-	sysStatus.MSpanSys = util.PrettySize(int64(m.MSpanSys))
-	sysStatus.MCacheInuse = util.PrettySize(int64(m.MCacheInuse))
-	sysStatus.MCacheSys = util.PrettySize(int64(m.MCacheSys))
-	sysStatus.BuckHashSys = util.PrettySize(int64(m.BuckHashSys))
-	sysStatus.GCSys = util.PrettySize(int64(m.GCSys))
-	sysStatus.OtherSys = util.PrettySize(int64(m.OtherSys))
+	sysStatus.StackInuse = numbers.PrettySize(int64(m.StackInuse))
+	sysStatus.StackSys = numbers.PrettySize(int64(m.StackSys))
+	sysStatus.MSpanInuse = numbers.PrettySize(int64(m.MSpanInuse))
+	sysStatus.MSpanSys = numbers.PrettySize(int64(m.MSpanSys))
+	sysStatus.MCacheInuse = numbers.PrettySize(int64(m.MCacheInuse))
+	sysStatus.MCacheSys = numbers.PrettySize(int64(m.MCacheSys))
+	sysStatus.BuckHashSys = numbers.PrettySize(int64(m.BuckHashSys))
+	sysStatus.GCSys = numbers.PrettySize(int64(m.GCSys))
+	sysStatus.OtherSys = numbers.PrettySize(int64(m.OtherSys))
 
-	sysStatus.NextGC = util.PrettySize(int64(m.NextGC))
+	sysStatus.NextGC = numbers.PrettySize(int64(m.NextGC))
 	sysStatus.LastGC = fmt.Sprintf("%.1fs", float64(time.Now().UnixNano()-int64(m.LastGC))/1000/1000/1000)
 	sysStatus.PauseTotalNs = fmt.Sprintf("%.1fs", float64(m.PauseTotalNs)/1000/1000/1000)
 	sysStatus.PauseNs = fmt.Sprintf("%.3fs", float64(m.PauseNs[(m.NumGC+255)%256])/1000/1000/1000)
