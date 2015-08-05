@@ -18,7 +18,7 @@ var (
 	BootstrapPrefix = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/"
 )
 
-var sysStatus struct {
+type SysStatus struct {
 	Uptime       string `json:"server_uptime"`
 	NumGoroutine int    `json:"current_goroutine"`
 
@@ -59,7 +59,8 @@ var sysStatus struct {
 	NumGC        uint32 `json:"gc_times"`
 }
 
-func updateSystemStatus() {
+func CurrentSystemStatus() *SysStatus {
+	sysStatus := &SysStatus{}
 	sysStatus.Uptime = numbers.TimeSincePro(startTime)
 
 	m := new(runtime.MemStats)
@@ -95,20 +96,18 @@ func updateSystemStatus() {
 	sysStatus.PauseTotalNs = fmt.Sprintf("%.1fs", float64(m.PauseTotalNs)/1000/1000/1000)
 	sysStatus.PauseNs = fmt.Sprintf("%.3fs", float64(m.PauseNs[(m.NumGC+255)%256])/1000/1000/1000)
 	sysStatus.NumGC = m.NumGC
+	return sysStatus
 }
 
 func MonitorJsonTo(w io.Writer) error {
-	updateSystemStatus()
-	return json.NewEncoder(w).Encode(sysStatus)
+	return json.NewEncoder(w).Encode(CurrentSystemStatus())
 }
 
 func MonitorHtmlTo(w io.Writer) (err error) {
-	updateSystemStatus()
-	return tmpl.Execute(w, map[string]interface{}{"SysStatus": sysStatus, "BootstrapPrefix": BootstrapPrefix})
+	return tmpl.Execute(w, map[string]interface{}{"SysStatus": CurrentSystemStatus(), "BootstrapPrefix": BootstrapPrefix})
 }
 
 func HandleMonitor(w http.ResponseWriter, r *http.Request) {
-	updateSystemStatus()
 	if strings.HasSuffix(r.URL.Path, ".json") || r.FormValue("format") == "json" {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		err := MonitorJsonTo(w)
