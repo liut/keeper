@@ -1,4 +1,4 @@
-package keeper
+package keeper // import "lcgc/liut/keeper"
 
 import (
 	"log"
@@ -9,16 +9,17 @@ import (
 
 func HandleStack(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	if r.FormValue("pf") == "yes" {
-		profile := pprof.Lookup("goroutine")
-		err := profile.WriteTo(w, 1)
+	debug := 1
+	pf := r.FormValue("pf")
+	switch pf {
+	case "goroutine", "heap", "threadcreate", "block":
+		err := pprof.Lookup(pf).WriteTo(w, debug)
 		if err != nil {
 			log.Print("profile.WriteTo error", err)
 		}
-	} else {
+	default:
 		w.Write(stacks(r.FormValue("all") == "yes"))
 	}
-
 }
 
 func stacks(all bool) []byte {
