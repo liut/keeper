@@ -1,4 +1,4 @@
-package keeper // import "lcgc/liut/keeper"
+package keeper
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"lcgc/liut/keeper/utils/numbers"
+	"github.com/liut/keeper/utils/numbers"
 )
 
 var (

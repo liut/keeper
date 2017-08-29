@@ -1,4 +1,4 @@
-package keeper // import "lcgc/liut/keeper"
+package keeper
 
 import (
 	"net/http"
