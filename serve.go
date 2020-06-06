@@ -4,20 +4,25 @@ import (
 	"net/http"
 )
 
-// Router like http.ServerMux, go-chi/chi.Router
-type Router interface {
-	HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request))
+var (
+	_ Muxer = (*http.ServeMux)(nil)
+)
+
+// Muxer like http.ServerMux, go-chi/chi.Router
+type Muxer interface {
+	Handle(pattern string, handler http.Handler)
 }
 
-// HandleByRouter ...
-func HandleByRouter(r Router) {
-	r.HandleFunc("/_server/monitor/", HandleMonitor)
-	r.HandleFunc("/_server/stacks/", HandleStack)
+// StrapMux ...
+func StrapMux(mux Muxer) {
+	mux.Handle("/_server/monitor/", http.HandlerFunc(HandleMonitor))
+	mux.Handle("/_server/stacks/", http.HandlerFunc(HandleStack))
 }
 
-// ListenAndServe ...
+// ListenAndServe 没什么用的接口
 func ListenAndServe(address string, handler http.Handler) error {
-	http.HandleFunc("/_server/monitor/", HandleMonitor)
-	http.HandleFunc("/_server/stacks/", HandleStack)
-	return http.ListenAndServe(address, handler)
+	mux := http.NewServeMux()
+	StrapMux(mux)
+	mux.Handle("/", handler)
+	return http.ListenAndServe(address, mux)
 }
