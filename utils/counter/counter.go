@@ -5,6 +5,7 @@ import (
 	"sync/atomic"
 )
 
+// Counter ...
 type Counter interface {
 	Inc(delta int64)
 	Dec(delta int64)
@@ -15,6 +16,7 @@ type Counter interface {
 
 type atomicCounter int64
 
+// New ...
 func New() Counter {
 	c := atomicCounter(int64(0))
 	return &c

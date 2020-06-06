@@ -5,8 +5,9 @@ import (
 	"time"
 )
 
-var defaultInterval = time.Minute * 5
+const defaultInterval = time.Minute * 5
 
+// CleanFunc ...
 type CleanFunc func() error
 
 // Run invokes a reap function as a goroutine.

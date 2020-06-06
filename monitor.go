@@ -14,11 +14,16 @@ import (
 	"github.com/liut/keeper/utils/numbers"
 )
 
-var (
-	startTime       = time.Now()
+// consts
+const (
 	BootstrapPrefix = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/"
 )
 
+var (
+	startTime = time.Now()
+)
+
+// SysStatus ...
 type SysStatus struct {
 	Uptime       string `json:"server_uptime"`
 	NumGoroutine int    `json:"current_goroutine"`
@@ -60,6 +65,7 @@ type SysStatus struct {
 	NumGC        uint32 `json:"gc_times"`
 }
 
+// CurrentSystemStatus ...
 func CurrentSystemStatus() *SysStatus {
 	sysStatus := &SysStatus{}
 	sysStatus.Uptime = numbers.TimeSincePro(startTime)
@@ -100,27 +106,31 @@ func CurrentSystemStatus() *SysStatus {
 	return sysStatus
 }
 
-func MonitorJsonTo(w io.Writer) error {
+// StatsToJSON ...
+func StatsToJSON(w io.Writer) error {
 	return json.NewEncoder(w).Encode(CurrentSystemStatus())
 }
 
-func MonitorHtmlTo(w io.Writer) (err error) {
+// StatsToHTML ...
+func StatsToHTML(w io.Writer) error {
 	return tmpl.Execute(w, map[string]interface{}{"SysStatus": CurrentSystemStatus(), "BootstrapPrefix": BootstrapPrefix})
 }
 
+// HandleMonitor ...
 func HandleMonitor(w http.ResponseWriter, r *http.Request) {
-	if strings.HasSuffix(r.URL.Path, ".json") || r.FormValue("format") == "json" {
+	if strings.HasPrefix(r.Header.Get("Accept"), "application/json") ||
+		strings.HasSuffix(r.URL.Path, ".json") || r.FormValue("format") == "json" {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		err := MonitorJsonTo(w)
+		err := StatsToJSON(w)
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
 			log.Print(err)
 		}
 		return
 	}
 
-	if strings.HasSuffix(r.URL.Path, ".html") || r.FormValue("format") == "html" {
-		err := MonitorHtmlTo(w)
+	if strings.HasPrefix(r.Header.Get("Accept"), "text/html") ||
+		strings.HasSuffix(r.URL.Path, ".html") || r.FormValue("format") == "html" {
+		err := StatsToHTML(w)
 		if err != nil {
 			log.Print(err)
 		}
