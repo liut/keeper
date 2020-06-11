@@ -15,8 +15,8 @@ type Muxer interface {
 
 // StrapMux ...
 func StrapMux(mux Muxer) {
-	mux.Handle("/_server/monitor/", http.HandlerFunc(HandleMonitor))
-	mux.Handle("/_server/stacks/", http.HandlerFunc(HandleStack))
+	mux.Handle("/_server/monitor", http.HandlerFunc(HandleMonitor))
+	mux.Handle("/_server/stacks", http.HandlerFunc(HandleStack))
 }
 
 // ListenAndServe 没什么用的接口

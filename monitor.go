@@ -119,7 +119,7 @@ func StatsToHTML(w io.Writer) error {
 // HandleMonitor ...
 func HandleMonitor(w http.ResponseWriter, r *http.Request) {
 	if strings.HasPrefix(r.Header.Get("Accept"), "application/json") ||
-		strings.HasSuffix(r.URL.Path, ".json") || r.FormValue("format") == "json" {
+		r.FormValue("format") == "json" {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		err := StatsToJSON(w)
 		if err != nil {
@@ -129,7 +129,7 @@ func HandleMonitor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if strings.HasPrefix(r.Header.Get("Accept"), "text/html") ||
-		strings.HasSuffix(r.URL.Path, ".html") || r.FormValue("format") == "html" {
+		r.FormValue("format") == "html" {
 		err := StatsToHTML(w)
 		if err != nil {
 			log.Print(err)
