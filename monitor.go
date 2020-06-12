@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"runtime"
 	"strings"
 	"time"
@@ -25,6 +26,7 @@ var (
 
 // SysStatus ...
 type SysStatus struct {
+	Name         string `json:"hostname"`
 	Uptime       string `json:"server_uptime"`
 	NumGoroutine int    `json:"current_goroutine"`
 
@@ -67,7 +69,8 @@ type SysStatus struct {
 
 // CurrentSystemStatus ...
 func CurrentSystemStatus() *SysStatus {
-	sysStatus := &SysStatus{}
+	name, _ := os.Hostname()
+	sysStatus := &SysStatus{Name: name}
 	sysStatus.Uptime = numbers.TimeSincePro(startTime)
 
 	m := new(runtime.MemStats)
@@ -147,18 +150,20 @@ var tmpl = template.Must(template.New("index").Parse(`<html>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>monitor</title>
+<title>status of {{.SysStatus.Name}}</title>
 <link rel="stylesheet" href="{{.BootstrapPrefix}}css/bootstrap.min.css">
 <style>
-.dl-horizontal dt {width: 240px;}
-.dl-horizontal dd {margin-left: 260px;}
+.panel-header {padding-left: 4em;}
+dt, dd {line-height: 1.6;}
+.dl-horizontal dt {width: 246px;}
+.dl-horizontal dd {margin-left: 270px;}
 </style>
 </head>
 <body><div class="container">
 <div class="panel panel-radius">
-<div class="panel-header"><h3>system monitor</h3></div>
+<div class="panel-header"><h3>System status of {{.SysStatus.Name}}</h3></div>
 <div class="panel-body">
-<dl class="dl-horizontal admin-dl-horizontal">
+<dl class="dl-horizontal">
    <dt>server_uptime</dt> <dd>{{.SysStatus.Uptime}}</dd>
    <dt>current_goroutine</dt> <dd>{{.SysStatus.NumGoroutine}}</dd>
 
