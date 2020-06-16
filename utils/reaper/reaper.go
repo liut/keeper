@@ -7,11 +7,11 @@ import (
 
 const defaultInterval = time.Minute * 5
 
-// CleanFunc ...
-type CleanFunc func() error
+// LoopFunc ...
+type LoopFunc func() error
 
 // Run invokes a reap function as a goroutine.
-func Run(interval time.Duration, cf CleanFunc) (chan<- struct{}, <-chan struct{}) {
+func Run(interval time.Duration, cf LoopFunc) (chan<- struct{}, <-chan struct{}) {
 	if interval <= 0 {
 		interval = defaultInterval
 	}
@@ -29,8 +29,8 @@ func Quit(quit chan<- struct{}, done <-chan struct{}) {
 }
 
 // reap with special action at set intervals.
-func reap(interval time.Duration, cf CleanFunc, quit <-chan struct{}, done chan<- struct{}) {
-	log.Printf("starting reaper by interval %s ...", interval)
+func reap(interval time.Duration, cf LoopFunc, quit <-chan struct{}, done chan<- struct{}) {
+	log.Printf("starting loop by interval %s ...", interval)
 	ticker := time.NewTicker(interval)
 
 	defer func() {
