@@ -1,11 +1,19 @@
 //
-// Package reaper 定时任务，用于资源清理
+// Package reaper used for loop task 用定时循环任务
 //
 package reaper
 
 //
 // Example: default interval is 5 minutes
 // defer reaper.Quit(reaper.Run(0, func() error {
-// 		// Cleanup
+// 		// Loop process
 // }))
 //
+
+// // for start
+// quit, done := reaper.Run(0, func() error {
+// 	// Loop process
+// })
+//
+// // for stop
+// reaper.Quit(quit, done)

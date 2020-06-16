@@ -23,13 +23,14 @@ func Run(interval time.Duration, cf CleanFunc) (chan<- struct{}, <-chan struct{}
 
 // Quit terminates the reap goroutine.
 func Quit(quit chan<- struct{}, done <-chan struct{}) {
+	log.Print("quiting")
 	quit <- struct{}{}
 	<-done
 }
 
 // reap with special action at set intervals.
 func reap(interval time.Duration, cf CleanFunc, quit <-chan struct{}, done chan<- struct{}) {
-	log.Printf("starting reaper by inerval %s ...", interval)
+	log.Printf("starting reaper by interval %s ...", interval)
 	ticker := time.NewTicker(interval)
 
 	defer func() {
@@ -39,6 +40,7 @@ func reap(interval time.Duration, cf CleanFunc, quit <-chan struct{}, done chan<
 	for {
 		select {
 		case <-quit:
+			log.Print("got quit sign")
 			// Handle the quit signal.
 			done <- struct{}{}
 			return
