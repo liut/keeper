@@ -15,9 +15,9 @@ import (
 	"github.com/liut/keeper/utils/numbers"
 )
 
-// consts
-const (
-	BootstrapPrefix = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/"
+// vars
+var (
+	BootstrapPrefix = "https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.3/"
 )
 
 var (
