@@ -27,44 +27,44 @@ var (
 // SysStatus ...
 type SysStatus struct {
 	Name         string `json:"hostname"`
-	Uptime       string `json:"server_uptime"`
-	NumGoroutine int    `json:"current_goroutine"`
+	Uptime       string `json:"serverUptime"`
+	NumGoroutine int    `json:"currentGoroutine"`
 
 	// General statistics.
-	MemAllocated string `json:"current_memory_usage"`   // bytes allocated and still in use
-	MemTotal     string `json:"total_memory_allocated"` // bytes allocated (even if freed)
-	MemSys       string `json:"memory_obtained"`        // bytes obtained from system (sum of XxxSys below)
-	Lookups      uint64 `json:"pointer_lookup_times"`   // number of pointer lookups
-	MemMallocs   uint64 `json:"memory_allocate_times"`  // number of mallocs
-	MemFrees     uint64 `json:"memory_free_times"`      // number of frees
+	MemAllocated string `json:"currentMemoryUsage"`   // bytes allocated and still in use
+	MemTotal     string `json:"totalMemoryAllocated"` // bytes allocated (even if freed)
+	MemSys       string `json:"memoryObtained"`       // bytes obtained from system (sum of XxxSys below)
+	Lookups      uint64 `json:"pointerLookupTimes"`   // number of pointer lookups
+	MemMallocs   uint64 `json:"memoryAllocateTimes"`  // number of mallocs
+	MemFrees     uint64 `json:"memoryFreeTimes"`      // number of frees
 
 	// Main allocation heap statistics.
-	HeapAlloc    string `json:"current_heap_usage"`   // bytes allocated and still in use
-	HeapSys      string `json:"heap_memory_obtained"` // bytes obtained from system
-	HeapIdle     string `json:"heap_memory_idle"`     // bytes in idle spans
-	HeapInuse    string `json:"heap_memory_in_use"`   // bytes in non-idle span
-	HeapReleased string `json:"heap_memory_released"` // bytes released to the OS
-	HeapObjects  uint64 `json:"heap_objects"`         // total number of allocated objects
+	HeapAlloc    string `json:"currentHeapUsage"`   // bytes allocated and still in use
+	HeapSys      string `json:"heapMemoryObtained"` // bytes obtained from system
+	HeapIdle     string `json:"heapMemoryIdle"`     // bytes in idle spans
+	HeapInuse    string `json:"heapMemoryInUse"`    // bytes in non-idle span
+	HeapReleased string `json:"heapMemoryReleased"` // bytes released to the OS
+	HeapObjects  uint64 `json:"heapObjects"`        // total number of allocated objects
 
 	// Low-level fixed-size structure allocator statistics.
 	//	Inuse is bytes used now.
 	//	Sys is bytes obtained from system.
-	StackInuse  string `json:"bootstrap_stack_usage"` // bootstrap stacks
-	StackSys    string `json:"stack_memory_obtained"`
-	MSpanInuse  string `json:"mspan_structures_usage"` // mspan structures
-	MSpanSys    string `json:"mspan_structures_obtained"`
-	MCacheInuse string `json:"mcache_structures_usage"` // mcache structures
-	MCacheSys   string `json:"mcache_structures_obtained"`
-	BuckHashSys string `json:"profiling_bucket_hash_table_obtained"` // profiling bucket hash table
-	GCSys       string `json:"gc_metadata_obtained"`                 // GC metadata
-	OtherSys    string `json:"other_system_allocation_obtained"`     // other system allocations
+	StackInuse  string `json:"bootstrapStackUsage"` // bootstrap stacks
+	StackSys    string `json:"stackMemoryObtained"`
+	MSpanInuse  string `json:"mspanStructuresUsage"` // mspan structures
+	MSpanSys    string `json:"mspanStructuresObtained"`
+	MCacheInuse string `json:"mcacheStructuresUsage"` // mcache structures
+	MCacheSys   string `json:"mcacheStructuresObtained"`
+	BuckHashSys string `json:"profilingBucketHashTableObtained"` // profiling bucket hash table
+	GCSys       string `json:"gcMetadataObtained"`               // GC metadata
+	OtherSys    string `json:"otherSystemAllocationObtained"`    // other system allocations
 
 	// Garbage collector statistics.
-	NextGC       string `json:"next_gc_recycle"` // next run in HeapAlloc time (bytes)
-	LastGC       string `json:"last_gc_time"`    // last run in absolute time (ns)
-	PauseTotalNs string `json:"total_gc_pause"`
-	PauseNs      string `json:"last_gc_pause"` // circular buffer of recent GC pause times, most recent at [(NumGC+255)%256]
-	NumGC        uint32 `json:"gc_times"`
+	NextGC       string `json:"nextGcRecycle"` // next run in HeapAlloc time (bytes)
+	LastGC       string `json:"lastGcTime"`    // last run in absolute time (ns)
+	PauseTotalNs string `json:"totalGcPause"`
+	PauseNs      string `json:"lastGcPause"` // circular buffer of recent GC pause times, most recent at [(NumGC+255)%256]
+	NumGC        uint32 `json:"gcTimes"`
 }
 
 // CurrentSystemStatus ...
