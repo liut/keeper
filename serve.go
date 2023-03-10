@@ -15,7 +15,7 @@ type Muxer interface {
 
 // StrapMux ...
 func StrapMux(mux Muxer) {
-	mux.Handle("/_server/monitor", http.HandlerFunc(HandleMonitor))
+	mux.Handle("/_server/status", http.HandlerFunc(HandleStatus))
 	mux.Handle("/_server/stacks", http.HandlerFunc(HandleStack))
 }
 

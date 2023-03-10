@@ -19,7 +19,7 @@ func HandleStack(w http.ResponseWriter, r *http.Request) {
 			log.Print("profile.WriteTo error", err)
 		}
 	default:
-		w.Write(stacks(r.FormValue("all") == "yes"))
+		w.Write(stacks(r.FormValue("all") == "yes")) //nolint
 	}
 }
 

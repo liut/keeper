@@ -119,8 +119,8 @@ func StatsToHTML(w io.Writer) error {
 	return tmpl.Execute(w, map[string]interface{}{"SysStatus": CurrentSystemStatus(), "BootstrapPrefix": BootstrapPrefix})
 }
 
-// HandleMonitor ...
-func HandleMonitor(w http.ResponseWriter, r *http.Request) {
+// HandleStatus ...
+func HandleStatus(w http.ResponseWriter, r *http.Request) {
 	if strings.HasPrefix(r.Header.Get("Accept"), "application/json") ||
 		r.FormValue("format") == "json" {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
